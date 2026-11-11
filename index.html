@@ -116,6 +116,9 @@
   <script src="ag.js"></script>
   <script src="oyun.js"></script>
   <script>
+    // iPhone sayfayı kendi kendine büyütmesin (iki parmak / çift dokunma)
+    ['gesturestart', 'gesturechange', 'gestureend'].forEach(t => document.addEventListener(t, e => e.preventDefault(), { passive: false }));
+    document.addEventListener('touchmove', e => { if (e.touches.length > 1) e.preventDefault(); }, { passive: false });
     if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js');
   </script>
 </body>

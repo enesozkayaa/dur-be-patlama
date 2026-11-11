@@ -8,7 +8,8 @@ const Sahne = (() => {
   const R = Motor.RENKLER;
   let renderer, scene, camera, saatSaat = null;
   let mod = null;                  // 'bomba' | 'canta' | null
-  const kam = { poz: new THREE.Vector3(0, 5, 5), bak: new THREE.Vector3(0, 1, 0), hPoz: new THREE.Vector3(0, 5, 5), hBak: new THREE.Vector3(0, 1, 0), salla: 0 };
+  const kam = { poz: new THREE.Vector3(0, 5, 5), bak: new THREE.Vector3(0, 1, 0), hPoz: new THREE.Vector3(0, 5, 5), hBak: new THREE.Vector3(0, 1, 0), salla: 0, sigdir: 1 };
+  const _uz = new THREE.Vector3();
   let kok = null;                  // bu oyunun nesneleri
   let tiklanabilir = [];
   let animler = [];
@@ -250,6 +251,7 @@ const Sahne = (() => {
     yakin = null;
     kam.hPoz.set(0, MASA_Y + 4.4, 4.0);
     kam.hBak.set(0, MASA_Y + 0.4, 0.25);
+    kam.sigdir = 1.15;
     if (ani) { kam.poz.copy(kam.hPoz); kam.bak.copy(kam.hBak); }
     olayFn({ tip: 'yakin', bolum: null });
   }
@@ -260,6 +262,7 @@ const Sahne = (() => {
     m.g.getWorldPosition(_wp);
     kam.hPoz.set(_wp.x, _wp.y + 1.75, _wp.z + 1.05);
     kam.hBak.set(_wp.x, _wp.y, _wp.z + 0.05);
+    kam.sigdir = 0.8;
     olayFn({ tip: 'yakin', bolum: i });
   }
 
@@ -707,6 +710,7 @@ const Sahne = (() => {
     tut.quaternion.copy(kupQ);
     kam.hPoz.set(0, MASA_Y + 2.7, 5.6);
     kam.hBak.set(0, MASA_Y + 0.75, 0);
+    kam.sigdir = 0.72;
     kam.poz.copy(kam.hPoz); kam.bak.copy(kam.hBak);
   }
   function cantaAc() {
@@ -787,7 +791,9 @@ const Sahne = (() => {
     // Kamera yumuşak geçiş + sarsıntı
     kam.poz.lerp(kam.hPoz, Math.min(1, dt * 6));
     kam.bak.lerp(kam.hBak, Math.min(1, dt * 6));
-    camera.position.copy(kam.poz);
+    // Dar (dik telefon) ekranda her şey sığsın diye kamerayı geri çek
+    const uzat = Math.max(1, kam.sigdir / camera.aspect);
+    camera.position.copy(kam.bak).add(_uz.copy(kam.poz).sub(kam.bak).multiplyScalar(uzat));
     if (kam.salla > 0) { kam.salla = Math.max(0, kam.salla - dt); const s = kam.salla * 0.25; camera.position.x += (Math.random() - 0.5) * s; camera.position.y += (Math.random() - 0.5) * s; }
     camera.lookAt(kam.bak);
     if (mod === 'bomba' && bomba) {
