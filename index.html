@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <title>Dur Be Patlama!</title>
+  <meta name="description" content="Kulaktan kulağa bomba çözme: zincirin sonundaki bombayı görür, diğerleri yönergeleri. Sadece yanındakini duyarsın!">
+  <meta name="theme-color" content="#1a0f0a">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="ikonlar/ikon-192.png">
+  <link rel="apple-touch-icon" href="ikonlar/ikon-192.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Black+Ops+One&family=Noto+Sans:wght@700&family=Nunito:wght@600;800;900&family=Special+Elite&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <canvas id="sahne"></canvas>
+
+  <!-- Giriş -->
+  <section id="giris" class="ekran">
+    <div class="kart">
+      <h1>💣 Dur Be<br><span>Patlama!</span></h1>
+      <p class="alt">Kulaktan kulağa bomba çözme. Bombayı sadece zincirin sonundaki görür, yönergeler diğerlerinin çantasında. <b>Sadece yanındakini duyarsın!</b></p>
+      <label for="adim">Adın</label>
+      <input id="adim" maxlength="14" placeholder="Adın" autocomplete="off">
+      <button id="odaKurBtn" class="ana">🏠 Oda aç</button>
+      <div class="satir">
+        <input id="odaKoduGir" maxlength="5" placeholder="ODA KODU" autocomplete="off">
+        <button id="katilBtn">Katıl</button>
+      </div>
+      <p id="girisDurum" class="durum"></p>
+      <details class="nasil">
+        <summary>❓ Nasıl oynanır?</summary>
+        <ul>
+          <li>2–4 kişi oynar. Oyuncular sıraya dizilir: <b>1 → 2 → 3 → 4</b>.</li>
+          <li><b>Sonuncu</b> bombanın başındadır ama kuralları bilmez. Diğerleri bombayı göremez; çantalarında <b>yönerge sayfaları</b> vardır.</li>
+          <li>Her bölümün çözümü <b>3 adımdır</b> ve adımlar farklı kişilerin çantasına dağılmıştır. 2 kişide hepsi tek kişidedir.</li>
+          <li>Herkes <b>sadece yanındakini</b> duyar. 4, 2'den bir şey isteyecekse önce 3'e söyler, 3 de 2'ye iletir.</li>
+          <li>Süre bitmeden ve hata hakkı dolmadan bütün bölümleri çözün!</li>
+        </ul>
+      </details>
+    </div>
+  </section>
+
+  <!-- Bekleme odası -->
+  <section id="lobi" class="ekran" hidden>
+    <div class="kart genis">
+      <div class="lobiUst">
+        <div>Oda kodu <b id="odaKodu" class="odaKodu">-----</b></div>
+        <button id="lobiSesBtn" class="ses">🎤 Mikrofonu aç</button>
+      </div>
+      <p class="alt">Kodu arkadaşlarına söyle, "Katıl" kısmına yazsınlar. Zincirin <b>sonundaki</b> bombayı çözer.</p>
+      <ol id="zincir" class="zincir"></ol>
+      <div id="sahipAraclar" class="sahipAraclar">
+        <button id="karistirBtn">🔀 Sırayı karıştır</button>
+        <button id="kaydirBtn">🔁 Sırayı kaydır</button>
+      </div>
+      <div id="ayarlar" class="ayarlar">
+        <div class="ayar"><span>⏱️ Süre</span><div class="secenek" data-ayar="sure"></div></div>
+        <div class="ayar"><span>🧩 Bölüm sayısı</span><div class="secenek" data-ayar="bolum"></div></div>
+        <div class="ayar"><span>❌ Hata hakkı</span><div class="secenek" data-ayar="hata"></div></div>
+      </div>
+      <p id="lobiDurum" class="durum"></p>
+      <div class="satir">
+        <button id="cikBtn">🚪 Çık</button>
+        <button id="baslatBtn" class="ana">💣 Başlat</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Oyun -->
+  <section id="oyun" hidden>
+    <div id="ust">
+      <div id="saat" class="saat">05:00</div>
+      <div id="hatalar" class="hatalar"></div>
+      <button id="oyunSesBtn" class="ses kucuk">🎤</button>
+    </div>
+    <div id="rol" class="rol"></div>
+    <div id="duyuru" class="duyuru" hidden></div>
+    <button id="geriBtn" class="geri" hidden>⬅ Bombaya dön</button>
+    <button id="cevirBtn" class="cevir" hidden>🔄 Bombayı çevir</button>
+    <button id="yonergeBtn" class="yonerge ana" hidden>📄 Yönergeler</button>
+    <!-- Herkesin gördüğü ilerleme: hangi bölüm çözüldü, hangisinde hata oldu -->
+    <div id="ilerleme" class="ilerleme" hidden></div>
+    <div id="kilit" class="kilit" hidden></div>
+    <!-- Yönlendiricinin çantası -->
+    <div id="canta" class="canta" hidden>
+      <div class="cantaUst">🧳 Çantandaki yönergeler <button id="cantaKapatBtn">🔄 Çantayı çevir</button></div>
+      <div id="sekmeler" class="sekmeler"></div>
+      <div id="sayfa" class="sayfa"></div>
+    </div>
+  </section>
+
+  <!-- Sonuç -->
+  <section id="sonuc" class="ekran perde" hidden>
+    <div class="kart genis">
+      <h2 id="sonucBaslik"></h2>
+      <p id="sonucYazi" class="alt"></p>
+      <div id="sonucListe" class="sonucListe"></div>
+      <div class="satir">
+        <button id="lobiyeBtn">↩ Bekleme odası</button>
+        <button id="tekrarBtn" class="ana">🔁 Tekrar (sıra kayar)</button>
+      </div>
+    </div>
+  </section>
+
+  <div id="baglanti" class="baglanti" hidden></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/three@0.159.0/build/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js"></script>
+  <script src="motor.js"></script>
+  <script src="ses.js"></script>
+  <script src="cizim.js"></script>
+  <script src="sahne.js"></script>
+  <script src="kilavuz.js"></script>
+  <script src="ag.js"></script>
+  <script src="oyun.js"></script>
+  <script>
+    if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js');
+  </script>
+</body>
+</html>
