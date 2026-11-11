@@ -134,6 +134,10 @@
   }
   $('lobiSesBtn').onclick = sesDegistir;
   $('oyunSesBtn').onclick = sesDegistir;
+  // Bomba / oyun sesleri aç-kapat (sesli sohbet etkilenmez)
+  const efektCiz = () => { const a = Ses.acikMi(); $('efektBtn').textContent = a ? '🔊' : '🔇'; $('efektBtn').style.opacity = a ? 1 : 0.6; };
+  $('efektBtn').onclick = () => { Ses.ayarla(!Ses.acikMi()); efektCiz(); };
+  efektCiz();
 
   // ---------- Başlat ----------
   $('baslatBtn').onclick = () => baslat();
@@ -186,9 +190,9 @@
       duyuru('💣 Bombacısın! Bir bölüme dokun, yakından bak. Ne gördüğünü yanındakine anlat.', '', 5000);
     } else {
       const c = d.cantalar[benimSira];
-      Sahne.cantaKur({ sol: c.sol, sag: c.sag, sira: benimSira + 1 }, { olay: () => {}, saatYazi });
+      Sahne.cantaKur({ sol: c.sol, sag: c.sag, seriYer: c.seriYer, sira: benimSira + 1 }, { olay: () => {}, saatYazi });
       kilitKur();
-      duyuru('🧳 Çantan kilitli! Çantayı sürükleyip çevir, kodu bul. 4. rakam bombada!', '', 5500);
+      duyuru('🧳 Çantan kilitli! Çantayı sürükleyip çevir, kodu bul. Bir rakamı bombada!', '', 5500);
     }
     Ag.sesGuncelle();
     sesDugmeleri();

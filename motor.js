@@ -291,11 +291,25 @@ const Motor = (() => {
     const bolumler = turlar.slice(0, bolumSayisi).map((tur, i) => { const b = URETICI[tur](rnd); return { no: i + 1, ...b, cozuldu: false, ilerleme: b.tur === 'labirent' ? [...b.ilk] : [] }; });
     const G = Math.max(1, oyuncuSayisi - 1);
     const seri = `${sec(rnd, 'KLMNRSTZ'.split(''))}${1 + Math.floor(rnd() * 9)}${sec(rnd, 'ABDEHPY'.split(''))}-${10 + Math.floor(rnd() * 90)}`;
-    // Her yönlendiricinin çantası kilitli: kodun 1-2. rakamı çantanın sol yanında, 3. rakamı sağ yanında,
-    // 4. rakamı ise bombanın seri numarasının son rakamı (çantanın altında yazar → bombacıya sorulmalı)
+    // Her yönlendiricinin çantası kilitli. 4 haneli kodun hanelerinin yeri her çantada karışık:
+    // bir yanda 2 hane, öbür yanda 1 hane yazar; kalan hane bombanın seri numarasının son rakamıdır
+    // (çantanın altında hangi hane olduğu yazar → bombacıya sorulmalı). Çantaların düzeni ve kodu birbirinden farklı.
+    const goruldu = new Set();
     const cantalar = Array.from({ length: G }, () => {
-      const sol = String(10 + Math.floor(rnd() * 90)), sag = String(Math.floor(rnd() * 10));
-      return { sol, sag, kod: sol + sag + seri.slice(-1) };
+      for (let deneme = 0; ; deneme++) {
+        const yer = karistir(rnd, [0, 1, 2, 3]);
+        const cift = yer.slice(0, 2).sort((a, b) => a - b), tek = yer[2], seriYer = yer[3];
+        const rakam = [0, 1, 2, 3].map(() => String(Math.floor(rnd() * 10)));
+        rakam[seriYer] = seri.slice(-1);
+        const kod = rakam.join('');
+        const anahtar = yer.slice(0, 3).join('') + seriYer;
+        if (deneme < 50 && (goruldu.has(anahtar) || goruldu.has(kod))) continue;
+        goruldu.add(anahtar); goruldu.add(kod);
+        const ciftParca = { yer: cift, rakam: cift.map(i => rakam[i]).join('') };
+        const tekParca = { yer: [tek], rakam: rakam[tek] };
+        const ciftSolda = rnd() < 0.5;
+        return { sol: ciftSolda ? ciftParca : tekParca, sag: ciftSolda ? tekParca : ciftParca, seriYer, kod };
+      }
     });
     return {
       tohum, ayar: { sure: ayar.sure, bolum: bolumSayisi, hata: ayar.hata }, seri, cantalar,

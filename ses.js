@@ -4,6 +4,7 @@
 
 const Ses = (() => {
   let ctx = null, acik = true;
+  try { acik = localStorage.getItem('dbp.ses') !== '0'; } catch (e) { }
   const al = () => {
     if (!ctx) { try { ctx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { return null; } }
     if (ctx.state === 'suspended') ctx.resume();
@@ -54,6 +55,8 @@ const Ses = (() => {
   }
   return {
     ac: al,
+    acikMi: () => acik,
+    ayarla: a => { acik = a; try { localStorage.setItem('dbp.ses', a ? '1' : '0'); } catch (e) { } if (!a && window.speechSynthesis) speechSynthesis.cancel(); },
     saat: (tak, siddet) => mekanik(tak, siddet),
     alarm: () => { for (let i = 0; i < 3; i++) { ton(988, 0.16, 'square', 0.12, i * 0.32); ton(740, 0.16, 'square', 0.12, i * 0.32 + 0.16); } },
     konus,

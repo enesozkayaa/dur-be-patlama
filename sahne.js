@@ -614,7 +614,9 @@ const Sahne = (() => {
   const EKSEN_Y = new THREE.Vector3(0, 1, 0), EKSEN_X = new THREE.Vector3(1, 0, 0);
 
   function cantaKur(bilgi, { olay, saatYazi }) {
-    // bilgi: { sol, sag, sira (zincirdeki no), ad }
+    // bilgi: { sol:{yer,rakam}, sag:{yer,rakam}, seriYer, sira (zincirdeki no) }
+    const yerYazi = yer => 'KOD · ' + yer.map(i => `${i + 1}.`).join(' ve ') + ' RAKAM';
+    const rakamYazi = r => r.split('').join(' ');
     temizle();
     mod = 'canta';
     olayFn = olay; saatYaziFn = saatYazi;
@@ -638,8 +640,8 @@ const Sahne = (() => {
     };
     // Yüzler: +x sağ, -x sol, +y üst, -y alt, +z ön, -z arka
     const malzeme = [
-      new THREE.MeshStandardMaterial({ map: yuzDoku(kodYazisi('KOD · 3. RAKAM', bilgi.sag), undefined, 1024, 284), roughness: 0.75 }),
-      new THREE.MeshStandardMaterial({ map: yuzDoku(kodYazisi('KOD · 1-2. RAKAM', bilgi.sol), undefined, 1024, 284), roughness: 0.75 }),
+      new THREE.MeshStandardMaterial({ map: yuzDoku(kodYazisi(yerYazi(bilgi.sag.yer), rakamYazi(bilgi.sag.rakam)), undefined, 1024, 284), roughness: 0.75 }),
+      new THREE.MeshStandardMaterial({ map: yuzDoku(kodYazisi(yerYazi(bilgi.sol.yer), rakamYazi(bilgi.sol.rakam)), undefined, 1024, 284), roughness: 0.75 }),
       new THREE.MeshStandardMaterial({ map: yuzDoku((g, w, h) => {
         g.save(); g.translate(w / 2, h / 2); g.rotate(-0.25);
         g.strokeStyle = 'rgba(200,30,20,0.85)'; g.lineWidth = 10; g.strokeRect(-190, -60, 380, 120);
@@ -648,7 +650,7 @@ const Sahne = (() => {
       }), roughness: 0.75 }),
       new THREE.MeshStandardMaterial({ map: yuzDoku((g, w, h) => {
         g.fillStyle = '#e9dcbc'; g.fillRect(w * 0.06, h * 0.2, w * 0.88, h * 0.6);
-        yazi(g, 'KOD · 4. RAKAM', w / 2, h * 0.32, 40, '#5a2a10', 'Nunito', 900);
+        yazi(g, `KOD · ${bilgi.seriYer + 1}. RAKAM`, w / 2, h * 0.32, 40, '#5a2a10', 'Nunito', 900);
         yazi(g, 'Bombanın SERİ NO', w / 2, h * 0.5, 44, '#1a0f08', 'Special Elite', 400);
         yazi(g, 'son rakamı', w / 2, h * 0.64, 44, '#1a0f08', 'Special Elite', 400);
       }, '#4a2a16'), roughness: 0.8 }),
