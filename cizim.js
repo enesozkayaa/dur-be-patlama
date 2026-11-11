@@ -78,5 +78,26 @@ const Cizim = (() => {
     return c.toDataURL();
   }
 
-  return { sekil, sekilResim, labirentResim };
+  // Takımyıldız: 5 yıldız, kesik çizgilerle bağlı, biri daha büyük. Bombada ve yönergede aynı çizim.
+  function yildizCiz(g, desen, x, y, w, h, renk = '#ffe9a0') {
+    const P = desen.yild.map(([a, b]) => [x + a * w, y + b * h]);
+    g.save();
+    g.strokeStyle = 'rgba(170,195,255,0.6)'; g.lineWidth = Math.max(1.5, w * 0.012); g.setLineDash([w * 0.03, w * 0.022]);
+    desen.cizgi.forEach(([i, j]) => { g.beginPath(); g.moveTo(P[i][0], P[i][1]); g.lineTo(P[j][0], P[j][1]); g.stroke(); });
+    g.setLineDash([]);
+    P.forEach(([px, py], i) => {
+      const r = w * (i === desen.buyuk ? 0.05 : 0.03);
+      g.fillStyle = renk; g.shadowColor = renk; g.shadowBlur = r * 1.6;
+      g.beginPath(); g.arc(px, py, r, 0, Math.PI * 2); g.fill();
+    });
+    g.restore();
+  }
+  function yildizResim(desen) {
+    const c = document.createElement('canvas'); c.width = c.height = 200;
+    const g = c.getContext('2d'); g.fillStyle = '#0b1026'; g.fillRect(0, 0, 200, 200);
+    yildizCiz(g, desen, 10, 10, 180, 180, '#ffe9a0');
+    return c.toDataURL();
+  }
+
+  return { sekil, sekilResim, labirentResim, yildizCiz, yildizResim };
 })();

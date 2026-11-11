@@ -285,8 +285,21 @@ const Sahne = (() => {
     const led = new THREE.Mesh(new THREE.SphereGeometry(0.045, 12, 8), new THREE.MeshStandardMaterial({ color: 0x551111, emissive: 0xff2020, emissiveIntensity: 0.4 }));
     led.position.set(0.42, 0.08, -0.42); g.add(led);
     const m = { g, b, led, x, z, ozel: {} };
-    const ekle = (mesh, tik) => { mesh.userData.tik = { bolum: i, ...tik }; tiklanabilir.push(mesh); return mesh; };
+    const ekle = (mesh, tik) => { mesh.userData.tik = { bolum: i, ...tik, nesne: mesh }; tiklanabilir.push(mesh); return mesh; };
     const G = b.gorunum;
+    // Yazılı düğme / ekran / küçük ışık yardımcıları
+    const yaziDoku = (w, h, metin, { zemin = '#d8cfb8', renk = '#1a1a1a', boy = 0.62, font = 'Black Ops One', kalin = 400 } = {}) => {
+      const cw = 256, ch = Math.max(32, Math.round(256 * h / w)), n = Math.max(1, String(metin).length);
+      return doku(cw, ch, (c) => { c.fillStyle = zemin; c.fillRect(0, 0, cw, ch); yazi(c, String(metin), cw / 2, ch / 2 + ch * 0.04, Math.min(ch * boy, (1.3 * cw) / n), renk, font, kalin); });
+    };
+    const yaziliDugme = (w, dd, metin, x, z, tik, se = {}) => {
+      const yan = new THREE.MeshStandardMaterial({ color: 0x3a3a44 });
+      const mesh = ekle(new THREE.Mesh(new THREE.BoxGeometry(w, 0.06, dd), [yan, yan, new THREE.MeshStandardMaterial({ map: yaziDoku(w, dd, metin, se) }), yan, yan, yan]), tik);
+      mesh.position.set(x, 0.1, z); mesh.castShadow = true; g.add(mesh);
+      return mesh;
+    };
+    const ekranYap = (w, h, metin, x, z, se = {}) => { const p = duzlem(w, h, yaziDoku(w, h, metin, { zemin: '#081a08', renk: '#5cff7a', ...se })); p.position.set(x, 0.066, z); g.add(p); return p; };
+    const kucukLed = (x, z, renk = 0x30ff60, taban = 0x113311) => { const l = new THREE.Mesh(new THREE.SphereGeometry(0.022, 10, 8), new THREE.MeshStandardMaterial({ color: taban, emissive: renk, emissiveIntensity: 0 })); l.position.set(x, 0.08, z); g.add(l); return l; };
 
     if (b.tur === 'kablo') {
       const sek = duzlem(0.22, 0.22, doku(128, 128, (c) => { c.fillStyle = '#e9e2cf'; c.fillRect(0, 0, 128, 128); Cizim.sekil(c, G.sekil, 64, 64, 48, '#111'); }));
@@ -508,8 +521,214 @@ const Sahne = (() => {
         kablolar.push({ tel, tut, p1, p2 });
       }
       m.ozel.kablolar = kablolar;
+    } else if (b.tur === 'numara') {
+      ekranYap(0.34, 0.13, G.kelime, -0.08, -0.38);
+      for (let k = 0; k < 4; k++) kucukLed(0.14 + k * 0.055, -0.38, 0xff2020, 0x401010).material.emissiveIntensity = k < G.led ? 1.8 : 0;
+      const panel = new THREE.Mesh(new THREE.BoxGeometry(0.66, 0.02, 0.66), new THREE.MeshStandardMaterial({ color: R[G.panel].hex, roughness: 0.6 }));
+      panel.position.set(0, 0.07, 0.12); g.add(panel);
+      const gDoku = doku(256, 64, () => {});
+      const giris = duzlem(0.4, 0.1, gDoku); giris.position.set(0, 0.082, -0.13); g.add(giris);
+      ['1', '2', '3', '4', '5', '6', '7', '8', '9', 'SİL', '0', 'GİR'].forEach((t, k) => {
+        const x = -0.2 + (k % 3) * 0.2, z = Math.floor(k / 3) * 0.115;
+        const tik = t === 'SİL' ? { ad: 'numSil' } : t === 'GİR' ? { ad: 'gir' } : { ad: 'num', rakam: t };
+        const se = t === 'GİR' ? { zemin: '#2bb34a', renk: '#fff' } : t === 'SİL' ? { zemin: '#c8341e', renk: '#fff' } : {};
+        yaziliDugme(0.17, 0.095, t, x, z, tik, se);
+      });
+      m.ozel = { giris: '', gDoku };
+      numaraCiz(m);
+    } else if (b.tur === 'sigorta') {
+      const cMal = new THREE.MeshStandardMaterial({ color: R[G.kutu].hex, roughness: 0.5 });
+      [[0, -0.24, 0.88, 0.035], [0, 0.42, 0.88, 0.035], [-0.43, 0.09, 0.035, 0.7], [0.43, 0.09, 0.035, 0.7]].forEach(([x, z, w, dd]) => {
+        const k = new THREE.Mesh(new THREE.BoxGeometry(w, 0.06, dd), cMal); k.position.set(x, 0.09, z); g.add(k);
+      });
+      const ic = new THREE.Mesh(new THREE.BoxGeometry(0.84, 0.02, 0.64), new THREE.MeshStandardMaterial({ color: 0x15171a })); ic.position.set(0, 0.07, 0.09); g.add(ic);
+      const camMal = new THREE.MeshStandardMaterial({ color: 0xcfe3ea, transparent: true, opacity: 0.55, roughness: 0.1, metalness: 0.1 });
+      const ucMal = new THREE.MeshStandardMaterial({ color: 0xd9b25a, metalness: 0.85, roughness: 0.3 });
+      const telMal = new THREE.MeshStandardMaterial({ color: 0x888888 });
+      const tuslar = G.numaralar.map((n, k) => {
+        const x = -0.34 + k * 0.136;
+        const et = duzlem(0.12, 0.08, yaziDoku(0.12, 0.08, String(n), { zemin: '#e9e2cf', font: 'Special Elite', boy: 0.8 })); et.position.set(x, 0.082, -0.14); g.add(et);
+        const sg = new THREE.Group(); sg.position.set(x, 0.12, 0.14); g.add(sg);
+        const cam = new THREE.Mesh(new THREE.CylinderGeometry(0.036, 0.036, 0.3, 14), camMal); cam.rotation.x = Math.PI / 2; sg.add(cam);
+        const tel = new THREE.Mesh(new THREE.CylinderGeometry(0.006, 0.006, 0.3, 6), telMal); tel.rotation.x = Math.PI / 2; sg.add(tel);
+        [-0.16, 0.16].forEach(zz => { const u = new THREE.Mesh(new THREE.CylinderGeometry(0.042, 0.042, 0.06, 14), ucMal); u.rotation.x = Math.PI / 2; u.position.z = zz; sg.add(u); });
+        const tut = ekle(new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.14, 0.42), new THREE.MeshBasicMaterial({ visible: false })), { ad: 'tus', tus: k });
+        tut.position.set(x, 0.13, 0.14); g.add(tut);
+        return { tus: sg };
+      });
+      m.ozel = { tuslar };
+    } else if (b.tur === 'telsiz') {
+      const hop = duzlem(0.34, 0.34, doku(256, 256, (c) => {
+        c.fillStyle = '#1a1a1a'; c.beginPath(); c.arc(128, 128, 124, 0, Math.PI * 2); c.fill(); c.fillStyle = '#555';
+        for (let yy = 22; yy < 240; yy += 22) for (let xx = 22; xx < 240; xx += 22) if (Math.hypot(xx - 128, yy - 128) < 108) { c.beginPath(); c.arc(xx, yy, 6, 0, Math.PI * 2); c.fill(); }
+      }), { saydam: true });
+      hop.position.set(-0.16, 0.066, -0.06); g.add(hop);
+      const lambaMal = new THREE.MeshStandardMaterial({ color: 0xffb030, emissive: 0xffa020, emissiveIntensity: 0.05 });
+      const lamba = new THREE.Mesh(new THREE.SphereGeometry(0.06, 16, 10), lambaMal); lamba.position.set(0.2, 0.1, -0.13); g.add(lamba);
+      const halka = new THREE.Mesh(new THREE.TorusGeometry(0.07, 0.015, 8, 24), new THREE.MeshStandardMaterial({ color: 0x333333, metalness: 0.7 }));
+      halka.rotation.x = Math.PI / 2; halka.position.set(0.2, 0.08, -0.13); g.add(halka);
+      ekranYap(0.2, 0.065, 'SİNYAL', 0.2, -0.01, { zemin: '#2a2a30', renk: '#ddd', font: 'Nunito', kalin: 900 });
+      const anten = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.012, 0.28, 6), new THREE.MeshStandardMaterial({ color: 0x222222 })); anten.position.set(0.37, 0.2, 0.02); g.add(anten);
+      const tuslar = G.dugmeler.map((f, k) => ({ tus: yaziliDugme(0.2, 0.13, f, -0.33 + k * 0.22, 0.3, { ad: 'tus', tus: k }, { zemin: '#14261a', renk: '#7dff9a' }) }));
+      // Sinyal: kısa 0.2 sn, uzun 0.65 sn, aralarda 0.3 sn; 3 sinyalden sonra 1.4 sn sessizlik
+      const parca = []; let tt = 0;
+      [...G.desen].forEach(s => { const uz = s === 'U' ? 0.65 : 0.2; parca.push([tt, tt + uz]); tt += uz + 0.3; });
+      const dongu = tt + 1.4; let t = 0, onceki = false;
+      m.ozel = { tuslar };
+      animler.push(dt => {
+        if (!kokDis) return false;
+        t = (t + dt) % dongu;
+        const p = parca.find(([a, z]) => t >= a && t < z);
+        lambaMal.emissiveIntensity = p ? 2.4 : 0.05;
+        if (p && !onceki && yakin === i && mod === 'bomba' && !b.cozuldu) Ses.ton(760, p[1] - p[0], 'sine', 0.1);
+        onceki = !!p;
+        return true;
+      });
+    } else if (b.tur === 'vana') {
+      const gost = duzlem(0.3, 0.2, doku(300, 200, (c) => {
+        c.fillStyle = '#efe6cf'; c.beginPath(); c.arc(150, 178, 145, Math.PI, 0); c.closePath(); c.fill();
+        c.strokeStyle = '#333'; c.lineWidth = 4; c.stroke();
+        for (let v = 0; v <= 100; v += 5) {
+          const a = Math.PI + (v / 100) * Math.PI, buyuk = v % 20 === 0, r1 = buyuk ? 112 : 124;
+          c.strokeStyle = '#222'; c.lineWidth = buyuk ? 4 : 2; c.beginPath(); c.moveTo(150 + Math.cos(a) * r1, 178 + Math.sin(a) * r1); c.lineTo(150 + Math.cos(a) * 136, 178 + Math.sin(a) * 136); c.stroke();
+          if (buyuk) yazi(c, String(v), 150 + Math.cos(a) * 92, 178 + Math.sin(a) * 92, 24, '#222');
+        }
+        const a = Math.PI + (G.ibre / 100) * Math.PI;
+        c.strokeStyle = '#d0201a'; c.lineWidth = 6; c.lineCap = 'round'; c.beginPath(); c.moveTo(150, 178); c.lineTo(150 + Math.cos(a) * 128, 178 + Math.sin(a) * 128); c.stroke();
+        c.fillStyle = '#222'; c.beginPath(); c.arc(150, 178, 12, 0, Math.PI * 2); c.fill();
+      }), { saydam: true });
+      gost.position.set(-0.08, 0.066, -0.33); g.add(gost);
+      const et = duzlem(0.11, 0.11, yaziDoku(0.11, 0.11, G.etiket, { zemin: '#e9e2cf', font: 'Special Elite', boy: 0.8 })); et.position.set(0.14, 0.066, -0.36); g.add(et);
+      ekranYap(0.12, 0.09, String(G.ekran), 0.29, -0.3);
+      const tekerler = [], sayDokular = [];
+      G.vanalar.forEach((rk, k) => {
+        const x = -0.3 + k * 0.3;
+        const vMal = new THREE.MeshStandardMaterial({ color: R[rk].hex, roughness: 0.4, metalness: 0.3 });
+        const boru = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.025, 0.06, 10), new THREE.MeshStandardMaterial({ color: 0x555555, metalness: 0.7 })); boru.position.set(x, 0.09, 0.08); g.add(boru);
+        const teker = new THREE.Group(); teker.position.set(x, 0.125, 0.08); g.add(teker);
+        const hal = new THREE.Mesh(new THREE.TorusGeometry(0.095, 0.02, 8, 28), vMal); hal.rotation.x = Math.PI / 2; teker.add(hal);
+        for (let s = 0; s < 3; s++) { const kol = new THREE.Mesh(new THREE.BoxGeometry(0.19, 0.018, 0.022), vMal); kol.rotation.y = s * Math.PI / 3; teker.add(kol); }
+        teker.add(new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 0.04, 12), new THREE.MeshStandardMaterial({ color: 0x888888, metalness: 0.8 })));
+        const sd = doku(128, 64, () => {}); const sp = duzlem(0.13, 0.065, sd); sp.position.set(x, 0.066, -0.1); g.add(sp); sayDokular.push(sd);
+        yaziliDugme(0.11, 0.09, '↺', x - 0.07, 0.26, { ad: 'vanaCevir', vana: k, yon: -1 }, { font: 'Noto Sans', kalin: 700, boy: 0.9 });
+        yaziliDugme(0.11, 0.09, '↻', x + 0.07, 0.26, { ad: 'vanaCevir', vana: k, yon: 1 }, { font: 'Noto Sans', kalin: 700, boy: 0.9 });
+        tekerler.push(teker);
+      });
+      yaziliDugme(0.44, 0.1, 'BOŞALT', 0, 0.41, { ad: 'bosalt' }, { zemin: '#2f6fe8', renk: '#fff' });
+      m.ozel = { turlar: [0, 0, 0], tekerler, sayDokular };
+      vanaCiz(m);
+    } else if (b.tur === 'yildiz') {
+      const ekr = duzlem(0.58, 0.44, doku(348, 264, (c) => {
+        c.fillStyle = '#05060c'; c.fillRect(0, 0, 348, 264);
+        Cizim.yildizCiz(c, G.desen, 54, 12, 240, 240, R[G.renk].hex);
+      }));
+      ekr.position.set(0.06, 0.066, -0.13); g.add(ekr);
+      const tuslar = G.dugmeler.map((h, k) => ({ tus: yaziliDugme(0.19, 0.15, h, -0.33 + k * 0.22, 0.31, { ad: 'tus', tus: k }, { font: 'Noto Sans', kalin: 700, boy: 0.8 }) }));
+      m.ozel = { tuslar };
+    } else if (b.tur === 'saat') {
+      const yuzD = doku(256, 256, (c) => {
+        c.fillStyle = '#f4efe2'; c.beginPath(); c.arc(128, 128, 122, 0, Math.PI * 2); c.fill();
+        for (let k = 0; k < 60; k++) {
+          const a = k * Math.PI / 30, r1 = k % 5 ? 112 : 104;
+          c.strokeStyle = '#555'; c.lineWidth = k % 5 ? 1.5 : 3.5; c.beginPath(); c.moveTo(128 + Math.cos(a) * r1, 128 + Math.sin(a) * r1); c.lineTo(128 + Math.cos(a) * 118, 128 + Math.sin(a) * 118); c.stroke();
+        }
+        for (let k = 1; k <= 12; k++) { const a = -Math.PI / 2 + k * Math.PI / 6; yazi(c, String(k), 128 + Math.cos(a) * 86, 128 + Math.sin(a) * 86, 28, '#1a1a1a'); }
+        const el = (aci, boy, kal) => { c.strokeStyle = '#1a1a1a'; c.lineWidth = kal; c.lineCap = 'round'; c.beginPath(); c.moveTo(128, 128); c.lineTo(128 + Math.cos(aci) * boy, 128 + Math.sin(aci) * boy); c.stroke(); };
+        el(-Math.PI / 2 + ((G.akrep % 12) + G.dakika / 60) * Math.PI / 6, 56, 11);
+        el(-Math.PI / 2 + G.dakika * Math.PI / 30, 96, 5);
+        c.fillStyle = '#c8341e'; c.beginPath(); c.arc(128, 128, 8, 0, Math.PI * 2); c.fill();
+      });
+      const kasa = new THREE.Mesh(new THREE.CylinderGeometry(0.27, 0.27, 0.03, 32), new THREE.MeshStandardMaterial({ color: 0xb8892a, metalness: 0.8, roughness: 0.3 }));
+      kasa.position.set(-0.12, 0.065, 0.03); g.add(kasa);
+      const yuz = duzlem(0.5, 0.5, yuzD, { saydam: true }); yuz.position.set(-0.12, 0.083, 0.03); g.add(yuz);
+      const calD = doku(128, 128, (c) => { c.fillStyle = '#d4381a'; c.fillRect(0, 0, 128, 128); yazi(c, 'ÇAL', 64, 70, 46, '#fff', 'Black Ops One', 400); });
+      const calMal = new THREE.MeshStandardMaterial({ color: 0xd4381a, roughness: 0.4 });
+      const yuva = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.12, 0.03, 24), new THREE.MeshStandardMaterial({ color: 0x222222, metalness: 0.5 })); yuva.position.set(0.33, 0.075, 0.27); g.add(yuva);
+      const cal = ekle(new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.1, 0.07, 24), [calMal, new THREE.MeshStandardMaterial({ map: calD }), calMal]), { ad: 'cal' });
+      cal.position.set(0.33, 0.1, 0.27); cal.rotation.y = 0; cal.castShadow = true; g.add(cal);
+      m.ozel = { cal };
+    } else if (b.tur === 'piyano') {
+      const kagit = duzlem(0.24, 0.17, doku(160, 112, (c) => {
+        c.fillStyle = '#f3ead2'; c.fillRect(0, 0, 160, 112); c.strokeStyle = '#aaa'; c.lineWidth = 2;
+        for (let k = 0; k < 5; k++) { c.beginPath(); c.moveTo(6, 26 + k * 15); c.lineTo(154, 26 + k * 15); c.stroke(); }
+        yazi(c, G.isaret, 80, 58, 76, '#111', 'Noto Sans', 700);
+      }));
+      kagit.position.set(-0.1, 0.066, -0.36); g.add(kagit);
+      const adimLed = [0, 1, 2, 3].map(k => kucukLed(0.1 + k * 0.06, -0.38));
+      const tuslar = G.tuslar.map((rk, k) => {
+        const tus = ekle(new THREE.Mesh(new THREE.BoxGeometry(0.165, 0.07, 0.56), new THREE.MeshStandardMaterial({ color: R[rk].hex, roughness: 0.35 })), { ad: 'tus', tus: k });
+        tus.position.set(-0.36 + k * 0.18, 0.1, 0.13); tus.castShadow = true; g.add(tus);
+        return { tus };
+      });
+      m.ozel = { tuslar, adimLed };
+    } else if (b.tur === 'zar') {
+      const NOKTA = { 1: [[64, 64]], 2: [[34, 34], [94, 94]], 3: [[30, 30], [64, 64], [98, 98]], 4: [[34, 34], [94, 34], [34, 94], [94, 94]], 5: [[30, 30], [98, 30], [64, 64], [30, 98], [98, 98]], 6: [[34, 28], [94, 28], [34, 64], [94, 64], [34, 100], [94, 100]] };
+      G.renkler.forEach((rk, k) => {
+        const ust = doku(128, 128, (c) => {
+          c.fillStyle = R[rk].hex; c.fillRect(0, 0, 128, 128); c.fillStyle = rk === 'beyaz' ? '#111' : '#fff';
+          NOKTA[G.degerler[k]].forEach(([px, py]) => { c.beginPath(); c.arc(px, py, 12, 0, Math.PI * 2); c.fill(); });
+        });
+        const yan = new THREE.MeshStandardMaterial({ color: R[rk].hex, roughness: 0.4 });
+        const zar = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.18, 0.18), [yan, yan, new THREE.MeshStandardMaterial({ map: ust, roughness: 0.4 }), yan, yan, yan]);
+        zar.position.set(-0.28 + k * 0.28, 0.155, -0.15); zar.rotation.y = (k - 1) * 0.25; zar.castShadow = true; g.add(zar);
+      });
+      const tuslar = G.dugmeler.map((w, k) => ({ tus: yaziliDugme(0.36, 0.14, w, k % 2 ? 0.2 : -0.2, k < 2 ? 0.14 : 0.35, { ad: 'tus', tus: k }, { zemin: '#26262e', renk: '#f6ead8' }) }));
+      m.ozel = { tuslar };
+    } else if (b.tur === 'isik') {
+      const et = duzlem(0.24, 0.1, yaziDoku(0.24, 0.1, `ETİKET ${G.etiket}`, { zemin: '#e9e2cf', font: 'Special Elite', boy: 0.7 })); et.position.set(-0.11, 0.066, -0.38); g.add(et);
+      const adimLed = [0, 1, 2, 3].map(k => kucukLed(0.1 + k * 0.06, -0.38));
+      const pedMal = [];
+      const tuslar = G.yerler.map((rk, k) => {
+        const mal = new THREE.MeshStandardMaterial({ color: new THREE.Color(R[rk].hex).multiplyScalar(0.07), emissive: R[rk].hex, emissiveIntensity: 0.15, roughness: 0.3 }); pedMal.push(mal);
+        const tus = ekle(new THREE.Mesh(new THREE.BoxGeometry(0.34, 0.06, 0.29), mal), { ad: 'tus', tus: k });
+        tus.position.set(k % 2 ? 0.2 : -0.2, 0.1, k < 2 ? -0.08 : 0.28); g.add(tus);
+        return { tus };
+      });
+      // Dizi: her ışık 0.5 sn yanar, 0.25 sn ara; 4 ışıktan sonra 1.5 sn bekler
+      const parca = G.dizi.map((r, k) => [k * 0.75, k * 0.75 + 0.5, G.yerler.indexOf(r)]);
+      const dongu = G.dizi.length * 0.75 + 1.5; let t = 0;
+      m.ozel = { tuslar, adimLed, basildi: [0, 0, 0, 0] };
+      animler.push(dt => {
+        if (!kokDis) return false;
+        t = (t + dt) % dongu;
+        const p = parca.find(([a, z]) => t >= a && t < z);
+        pedMal.forEach((mal, k) => { m.ozel.basildi[k] = Math.max(0, m.ozel.basildi[k] - dt); mal.emissiveIntensity = (p && p[2] === k) || m.ozel.basildi[k] > 0 ? 1.6 : 0.15; });
+        return true;
+      });
+    } else if (b.tur === 'sifre') {
+      ekranYap(0.6, 0.2, G.sifreli.split('').join(' '), 0.05, -0.3, { zemin: '#05050a', renk: R[G.renk].hex });
+      const tuslar = G.dugmeler.map((rk, k) => {
+        const x = k % 2 ? 0.2 : -0.2, z = k < 2 ? 0.0 : 0.3;
+        const yuva = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.12, 0.03, 24), new THREE.MeshStandardMaterial({ color: 0x222222, metalness: 0.5 })); yuva.position.set(x, 0.075, z); g.add(yuva);
+        const tus = ekle(new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.1, 0.07, 24), new THREE.MeshStandardMaterial({ color: R[rk].hex, roughness: 0.35 })), { ad: 'tus', tus: k });
+        tus.position.set(x, 0.1, z); tus.castShadow = true; g.add(tus);
+        return { tus };
+      });
+      m.ozel = { tuslar };
     }
     return m;
+  }
+
+  function numaraCiz(m) {
+    const c = m.ozel.gDoku.userData.c, x = c.getContext('2d');
+    x.fillStyle = '#0c0805'; x.fillRect(0, 0, 256, 64);
+    yazi(x, (m.ozel.giris + '___').slice(0, 3).split('').join(' '), 128, 36, 50, '#ff3b2a', 'Black Ops One', 400);
+    m.ozel.gDoku.needsUpdate = true;
+  }
+  function vanaCiz(m) {
+    m.ozel.turlar.forEach((v, k) => {
+      m.ozel.tekerler[k].rotation.y = -v * Math.PI / 3;
+      const d = m.ozel.sayDokular[k], c = d.userData.c, x = c.getContext('2d');
+      x.fillStyle = '#081a08'; x.fillRect(0, 0, 128, 64);
+      yazi(x, v === 0 ? '0' : `${v > 0 ? '↻' : '↺'}${Math.abs(v)}`, 64, 34, 44, '#ffc23a', 'Noto Sans', 700);
+      d.needsUpdate = true;
+    });
+  }
+  function basAnim(o) {
+    if (!o) return;
+    const y0 = (o.userData.y0 ??= o.position.y);
+    o.position.y = y0 - 0.03;
+    setTimeout(() => { o.position.y = y0; }, 140);
   }
 
   function salterCiz(m) {
@@ -552,6 +771,9 @@ const Sahne = (() => {
     if ((m.b.tur === 'kablo' || m.b.tur === 'demet') && Array.isArray(r.ilerleme)) r.ilerleme.forEach(k => kabloKes(m, k));
     if (m.b.tur === 'labirent' && Array.isArray(r.ilerleme) && r.ilerleme.length === 2) { m.ozel.yer = [...r.ilerleme]; labirentCiz(m); }
     if (m.b.tur === 'tus') m.ozel.tuslar.forEach((t, k) => { const yandi = (r.ilerleme || []).includes(k) || r.tip === 'dogru'; t.l.material.emissive.set(yandi ? 0x30ff60 : 0x000000); });
+    if (m.ozel.adimLed) m.ozel.adimLed.forEach((l, k) => { l.material.emissiveIntensity = r.tip === 'dogru' || (r.ilerleme || []).length > k ? 1.6 : 0; });
+    if (m.b.tur === 'numara' && r.tip === 'hata') { m.ozel.giris = ''; numaraCiz(m); }
+    if (m.b.tur === 'sigorta' && r.tip === 'dogru') { const sg = m.ozel.tuslar[m.b.cevap]; if (sg) { sg.tus.userData.y0 = 0.32; sg.tus.position.y = 0.32; } }
     if (r.tip === 'hata') { m.led.material.emissiveIntensity = 3; setTimeout(() => { if (!m.b.cozuldu) m.led.material.emissiveIntensity = 0.4; }, 600); kam.salla = 0.25; }
   }
   function kabloKes(m, k) {
@@ -743,7 +965,19 @@ const Sahne = (() => {
       const m = bomba.moduller[t.bolum];
       if (m.b.cozuldu || bomba.d.bitti) return;
       if (t.ad === 'kes') { kabloKes(m, t.kablo); Ses.kes(); olayFn({ tip: 'hamle', e: { bolum: t.bolum, ad: 'kes', kablo: t.kablo } }); }
-      else if (t.ad === 'tus') { Ses.tus(); const tus = m.ozel.tuslar[t.tus].tus; tus.position.y = 0.07; setTimeout(() => { tus.position.y = 0.1; }, 140); olayFn({ tip: 'hamle', e: { bolum: t.bolum, ad: 'tus', tus: t.tus } }); }
+      else if (t.ad === 'tus') {
+        if (m.b.tur === 'piyano') { const nota = Object.keys(m.b.tablolar[2]).find(n => m.b.tablolar[2][n] === m.b.gorunum.tuslar[t.tus]); Ses.ton({ Do: 523, Re: 587, Mi: 659, Fa: 698, Sol: 784 }[nota] || 600, 0.4, 'triangle', 0.16); }
+        else Ses.tus();
+        if (m.ozel.basildi) m.ozel.basildi[t.tus] = 0.25;
+        basAnim(m.ozel.tuslar[t.tus].tus);
+        olayFn({ tip: 'hamle', e: { bolum: t.bolum, ad: 'tus', tus: t.tus } });
+      }
+      else if (t.ad === 'num') { Ses.tus(); basAnim(t.nesne); if (m.ozel.giris.length < 3) m.ozel.giris += t.rakam; numaraCiz(m); }
+      else if (t.ad === 'numSil') { Ses.tak(); basAnim(t.nesne); m.ozel.giris = m.ozel.giris.slice(0, -1); numaraCiz(m); }
+      else if (t.ad === 'gir') { basAnim(t.nesne); if (m.ozel.giris.length < 3) { Ses.bip(); return; } Ses.tus(); olayFn({ tip: 'hamle', e: { bolum: t.bolum, ad: 'gir', deger: m.ozel.giris } }); }
+      else if (t.ad === 'vanaCevir') { Ses.tak(); basAnim(t.nesne); m.ozel.turlar[t.vana] = Math.max(-9, Math.min(9, m.ozel.turlar[t.vana] + t.yon)); vanaCiz(m); }
+      else if (t.ad === 'bosalt') { Ses.tus(); basAnim(t.nesne); olayFn({ tip: 'hamle', e: { bolum: t.bolum, ad: 'bosalt', turlar: [...m.ozel.turlar] } }); }
+      else if (t.ad === 'cal') { Ses.tus(); basAnim(t.nesne); olayFn({ tip: 'hamle', e: { bolum: t.bolum, ad: 'cal', saat: saatYaziFn() } }); }
       else if (t.ad === 'salter') { Ses.tak(); m.ozel.durum[t.sira] = 1 - m.ozel.durum[t.sira]; salterCiz(m); }
       else if (t.ad === 'onay') { Ses.tus(); olayFn({ tip: 'hamle', e: { bolum: t.bolum, ad: 'onay', durum: [...m.ozel.durum] } }); }
       else if (t.ad === 'kadranCevir') { Ses.tak(); m.ozel.konum = ((m.ozel.konum - 1 + t.yon + 8) % 8) + 1; m.ozel.dugme.rotation.y = -(m.ozel.konum - 1) * Math.PI / 4; }
@@ -788,7 +1022,7 @@ const Sahne = (() => {
     kare(zaman);
   }
   function kare(zaman = performance.now()) {
-    const dt = Math.min(0.05, (zaman - (sonZaman || zaman)) / 1000);
+    const dt = Math.max(0, Math.min(0.05, (zaman - (sonZaman || zaman)) / 1000));
     sonZaman = zaman;
     // Kamera yumuşak geçiş + sarsıntı
     kam.poz.lerp(kam.hPoz, Math.min(1, dt * 6));

@@ -55,6 +55,7 @@ const Ses = (() => {
   }
   return {
     ac: al,
+    ton,
     acikMi: () => acik,
     ayarla: a => { acik = a; try { localStorage.setItem('dbp.ses', a ? '1' : '0'); } catch (e) { } if (!a && window.speechSynthesis) speechSynthesis.cancel(); },
     saat: (tak, siddet) => mekanik(tak, siddet),

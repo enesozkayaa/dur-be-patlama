@@ -28,7 +28,7 @@ const Motor = (() => {
   const SEKILLER = ['yildiz', 'hilal', 'kalp', 'ucgen', 'arti', 'elmas', 'halka', 'simsek'];   // kablo bölümündeki çizimler
   const HARFLER = ['A', 'B', 'C', 'D', 'E', 'F'];
   const DUGME_RENK = ['kirmizi', 'mavi', 'sari', 'beyaz'];
-  const DUGME_YAZI = ['BAS', 'TUT', 'DUR', 'PATLA', 'İPTAL', 'BEKLE'];
+  const DUGME_YAZI = ['BAS', 'TUT', 'DUR', 'PATLA', 'İPTAL', 'BEKLE', 'EVET', 'HAYIR', 'SEKİZ'];
   const SERIT_RENK = ['mavi', 'beyaz', 'sari', 'kirmizi', 'yesil'];
   // Tuş bölümündeki işaretler: tarif etmesi zor Kiril harfleri
   const ISARETLER = ['Ж', 'Ѯ', 'Ѱ', 'Ҩ', 'Ӭ', 'Ѭ', 'Ҧ', 'Ӂ', 'Ѣ', 'Ҕ', 'Ѧ', 'Ӄ'];
@@ -42,9 +42,12 @@ const Motor = (() => {
     'LALE', 'MAMA', 'NANE', 'OYUN', 'PERİ', 'SIRA', 'ŞAKA', 'TOKA', 'UZAY', 'VAZO', 'YAKA', 'ZEKA', 'ARKA', 'BALE', 'SOBA', 'TAVA'];
   const ALFABE = 'ABCÇDEFGHIİKLMNOÖPRSŞTUÜVYZ';
   const CARK_LAMBA = ['kirmizi', 'mavi', 'yesil', 'sari'];
-  const TURLER = ['kablo', 'dugme', 'tus', 'cark', 'labirent', 'kelime', 'demet', 'salter', 'kadran', 'fener'];
-  const TUR_AD = { kablo: 'Kablolar', dugme: 'Büyük Düğme', tus: 'Tuş Takımı', cark: 'Şifre Çarkı', labirent: 'Labirent', kelime: 'Renkli Kelimeler', demet: 'Kablo Demeti', salter: 'Şalterler', kadran: 'Kadran', fener: 'Yanıp Sönen Fener' };
-  const TUR_IKON = { kablo: '🔌', dugme: '🔴', tus: '🔣', cark: '🔐', labirent: '🌀', kelime: '🎨', demet: '🧶', salter: '🎚️', kadran: '🧭', fener: '💡' };
+  const TURLER = ['kablo', 'dugme', 'tus', 'cark', 'labirent', 'kelime', 'demet', 'salter', 'kadran', 'fener',
+    'numara', 'sigorta', 'telsiz', 'vana', 'yildiz', 'saat', 'piyano', 'zar', 'isik', 'sifre'];
+  const TUR_AD = { kablo: 'Kablolar', dugme: 'Büyük Düğme', tus: 'Tuş Takımı', cark: 'Şifre Çarkı', labirent: 'Labirent', kelime: 'Renkli Kelimeler', demet: 'Kablo Demeti', salter: 'Şalterler', kadran: 'Kadran', fener: 'Yanıp Sönen Fener',
+    numara: 'Sayısal Kilit', sigorta: 'Sigorta Kutusu', telsiz: 'Telsiz', vana: 'Basınç Vanaları', yildiz: 'Takımyıldızlar', saat: 'Çalar Saat', piyano: 'Piyano', zar: 'Zarlar', isik: 'Işık Dizisi', sifre: 'Şifreli Mesaj' };
+  const TUR_IKON = { kablo: '🔌', dugme: '🔴', tus: '🔣', cark: '🔐', labirent: '🌀', kelime: '🎨', demet: '🧶', salter: '🎚️', kadran: '🧭', fener: '💡',
+    numara: '🔢', sigorta: '🔋', telsiz: '📻', vana: '⏲️', yildiz: '✨', saat: '⏰', piyano: '🎹', zar: '🎲', isik: '🚦', sifre: '📜' };
   // Şalterler
   const PANEL_HARF = ['P', 'R', 'S', 'T', 'U', 'V'];
   const SALTER_DONUSUM = { ayni: 'Dizilimi <b>olduğu gibi</b> yap.', ters: 'Dizilimi <b>tersine çevir</b>: yukarılar aşağı, aşağılar yukarı.', ayna: 'Dizilimi <b>aynala</b>: soldan sağa değil, sağdan sola uygula.' };
@@ -59,7 +62,7 @@ const Motor = (() => {
   // Renkli kelimeler
   const KELIME_RENK = ['kirmizi', 'mavi', 'yesil', 'sari', 'beyaz', 'mor'];
   const RENK_KELIME = r => RENKLER[r].ad.toLocaleUpperCase('tr');
-  const KARISIK = ['TAMAM', 'YEŞİL', 'KIRMIZI', 'MAVİ', 'SARI', 'MOR', 'BEYAZ', 'BOŞ', 'HİÇ', 'RENK', 'BASMA', 'BU'];
+  const KARISIK = ['TAMAM', 'YEŞİL', 'KIRMIZI', 'MAVİ', 'SARI', 'MOR', 'BEYAZ', 'BOŞ', 'HİÇ', 'RENK', 'BASMA', 'BU', 'EVET', 'HAYIR', 'BAS', 'SEKİZ'];
   const KONUM = ['sol üst', 'sağ üst', 'sol alt', 'sağ alt'];
 
   // ---------- Bölüm üreticileri ----------
@@ -264,7 +267,221 @@ const Motor = (() => {
     const cevap = dugmeTablo[sayiTablo[renkTablo[yanma]]];
     return { tur: 'fener', gorunum: { yanma, cam }, tablolar: [renkTablo, sayiTablo, dugmeTablo], cevap };
   }
-  const URETICI = { kablo: kabloYap, dugme: dugmeYap, tus: tusYap, cark: carkYap, labirent: labirentYap, kelime: kelimeYap, demet: demetYap, salter: salterYap, kadran: kadranYap, fener: fenerYap };
+  // =============================================================
+  // Yeni bölümler (11-20)
+  // =============================================================
+
+  // Sayısal kilit: ekranda (rakam gibi görünen) bir kelime, renkli panel, yanan kırmızı ışık sayısı.
+  // Adım 1: kelime → sütun. Adım 2: panel rengi + sütun → 3 haneli sayı. Adım 3: ışık sayısı → işlem. Sonra tuşla + GİR.
+  const NUM_KELIME = ['EVET', 'HAYIR', 'SEKİZ', 'BAS', 'TAMAM', 'DOKUZ', 'SIFIR', 'ÜÇ'];
+  const NUM_SUTUN = ['A', 'B', 'C', 'D'];
+  const NUM_PANEL = ['kirmizi', 'mavi', 'yesil', 'sari'];
+  const NUM_ISLEM = {
+    ayni: 'Sayıyı <b>olduğu gibi</b> tuşla.',
+    ters: 'Sayıyı <b>tersten</b> tuşla (472 → 274).',
+    artir: 'Her rakamı <b>1 artır</b>, 9 olan 0 olur (472 → 583).',
+    azalt: 'Her rakamı <b>1 azalt</b>, 0 olan 9 olur (402 → 391).',
+  };
+  function numaraYap(rnd) {
+    const sutunTablo = Object.fromEntries(NUM_KELIME.map(w => [w, sec(rnd, NUM_SUTUN)]));
+    const sayiTablo = Object.fromEntries(NUM_PANEL.map(r => [r, Object.fromEntries(NUM_SUTUN.map(s => [s, String(100 + Math.floor(rnd() * 900))]))]));
+    const islemTablo = Object.fromEntries([1, 2, 3, 4].map(n => [n, sec(rnd, Object.keys(NUM_ISLEM))]));
+    const kelime = sec(rnd, NUM_KELIME), panel = sec(rnd, NUM_PANEL), led = 1 + Math.floor(rnd() * 4);
+    const sayi = sayiTablo[panel][sutunTablo[kelime]], islem = islemTablo[led];
+    let cevap = sayi;
+    if (islem === 'ters') cevap = [...sayi].reverse().join('');
+    if (islem === 'artir') cevap = [...sayi].map(c => (+c + 1) % 10).join('');
+    if (islem === 'azalt') cevap = [...sayi].map(c => (+c + 9) % 10).join('');
+    return { tur: 'numara', gorunum: { kelime, panel, led }, tablolar: [sutunTablo, sayiTablo, islemTablo], cevap };
+  }
+
+  // Sigorta kutusu: 6 numaralı sigorta, kutunun çerçevesi renkli. Bir tanesi çekilecek.
+  // Adım 1: çerçeve rengi → bakılacak sigorta. Adım 2: onun numarası → harf. Adım 3: harf → hangi sigorta çekilir.
+  const SIGORTA_KUTU = ['kirmizi', 'mavi', 'yesil', 'sari', 'beyaz'];
+  const SIGORTA_ARALIK = [[10, 24], [25, 39], [40, 54], [55, 69], [70, 84], [85, 99]];
+  const SIGORTA_HARF = ['K', 'L', 'M', 'N', 'P', 'R'];
+  const SIGORTA_KURAL = {
+    enBuyuk: 'Numarası <b>en büyük</b> olan sigortayı çek.',
+    enKucuk: 'Numarası <b>en küçük</b> olan sigortayı çek.',
+    tekBuyuk: 'Numarası <b>tek</b> olanlardan <b>en büyüğünü</b> çek (hiç tek yoksa en büyüğü).',
+    ciftKucuk: 'Numarası <b>çift</b> olanlardan <b>en küçüğünü</b> çek (hiç çift yoksa en küçüğü).',
+    bakilan: '1. adımda <b>bakılan sigortanın kendisini</b> çek.',
+    sagKomsu: '1. adımda bakılan sigortanın <b>sağındakini</b> çek (en sağdaysa en soldakini).',
+  };
+  function sigortaYap(rnd) {
+    const bakTablo = Object.fromEntries(SIGORTA_KUTU.map(r => [r, 1 + Math.floor(rnd() * 6)]));
+    const harfTablo = SIGORTA_ARALIK.map(() => sec(rnd, SIGORTA_HARF));
+    const kuralTablo = Object.fromEntries(SIGORTA_HARF.map(h => [h, sec(rnd, Object.keys(SIGORTA_KURAL))]));
+    const kutu = sec(rnd, SIGORTA_KUTU);
+    const numaralar = karistir(rnd, aralik(10, 99)).slice(0, 6);
+    const bak = bakTablo[kutu] - 1, no = numaralar[bak];
+    const harf = harfTablo[SIGORTA_ARALIK.findIndex(([a, z]) => no >= a && no <= z)];
+    const kural = kuralTablo[harf];
+    const yer = v => numaralar.indexOf(v);
+    const tek = numaralar.filter(n => n % 2), cift = numaralar.filter(n => n % 2 === 0);
+    let cevap;
+    if (kural === 'enBuyuk') cevap = yer(Math.max(...numaralar));
+    else if (kural === 'enKucuk') cevap = yer(Math.min(...numaralar));
+    else if (kural === 'tekBuyuk') cevap = yer(Math.max(...(tek.length ? tek : numaralar)));
+    else if (kural === 'ciftKucuk') cevap = yer(Math.min(...(cift.length ? cift : numaralar)));
+    else if (kural === 'bakilan') cevap = bak;
+    else cevap = (bak + 1) % 6;
+    return { tur: 'sigorta', gorunum: { kutu, numaralar }, tablolar: [bakTablo, harfTablo, kuralTablo], cevap };
+  }
+
+  // Telsiz: ışık ve ses 3 sinyal verir (kısa/uzun), durur, tekrar eder. Altında 4 frekans düğmesi.
+  // Adım 1: desen → kod kelimesi. Adım 2: kelime → kanal. Adım 3: kanal → frekans.
+  const TELSIZ_DESEN = ['KKK', 'KKU', 'KUK', 'KUU', 'UKK', 'UKU', 'UUK', 'UUU'];
+  const TELSIZ_KELIME = ['ALFA', 'KARTAL', 'POYRAZ', 'ŞAHİN', 'MERCAN', 'YILDIZ', 'TUNA', 'ORKİDE'];
+  function telsizYap(rnd) {
+    const kel = karistir(rnd, TELSIZ_KELIME);
+    const kelimeTablo = Object.fromEntries(TELSIZ_DESEN.map((d, i) => [d, kel[i]]));
+    const kanallar = karistir(rnd, aralik(1, 8));
+    const kanalTablo = Object.fromEntries(TELSIZ_KELIME.map((w, i) => [w, kanallar[i]]));
+    const frekanslar = karistir(rnd, aralik(310, 399)).slice(0, 8).map(n => (n / 100).toFixed(2));
+    const frekansTablo = Object.fromEntries(aralik(1, 8).map((k, i) => [k, frekanslar[i]]));
+    const desen = sec(rnd, TELSIZ_DESEN);
+    const dogru = frekansTablo[kanalTablo[kelimeTablo[desen]]];
+    const dugmeler = karistir(rnd, [dogru, ...karistir(rnd, frekanslar.filter(f => f !== dogru)).slice(0, 3)]);
+    return { tur: 'telsiz', gorunum: { desen, dugmeler }, tablolar: [kelimeTablo, kanalTablo, frekansTablo], cevap: dugmeler.indexOf(dogru) };
+  }
+
+  // Basınç vanaları: bir gösterge (ibre), 3 renkli vana, etiket harfi, küçük ekranda sayı.
+  // Adım 1: ibrenin aralığı → hangi renkteki vana. Adım 2: renk + etiket → kaç tur. Adım 3: ekran sayısı → yön.
+  const VANA_RENK = ['kirmizi', 'mavi', 'yesil', 'sari'];
+  const VANA_ARALIK = [[0, 19], [20, 39], [40, 59], [60, 79], [80, 100]];
+  const VANA_ETIKET = ['A', 'B', 'C', 'D'];
+  function vanaYap(rnd) {
+    const renkTablo = VANA_ARALIK.map(() => sec(rnd, VANA_RENK));
+    const turTablo = Object.fromEntries(VANA_RENK.map(r => [r, Object.fromEntries(VANA_ETIKET.map(e => [e, 1 + Math.floor(rnd() * 5)]))]));
+    const yonTablo = Object.fromEntries(aralik(1, 9).map(n => [n, rnd() < 0.5 ? 'saat' : 'ters']));
+    for (;;) {
+      const vanalar = karistir(rnd, VANA_RENK).slice(0, 3);
+      const ibre = 3 + Math.floor(rnd() * 95);
+      if ([20, 40, 60, 80].some(s => Math.abs(ibre - s) <= 3)) continue;   // sınırda olmasın
+      const hedefRenk = renkTablo[VANA_ARALIK.findIndex(([a, z]) => ibre >= a && ibre <= z)];
+      const k = vanalar.indexOf(hedefRenk);
+      if (k < 0) continue;
+      const etiket = sec(rnd, VANA_ETIKET), ekran = 1 + Math.floor(rnd() * 9);
+      const cevap = [0, 0, 0];
+      cevap[k] = turTablo[hedefRenk][etiket] * (yonTablo[ekran] === 'saat' ? 1 : -1);
+      return { tur: 'vana', gorunum: { vanalar, ibre, etiket, ekran }, tablolar: [renkTablo, turTablo, yonTablo], cevap };
+    }
+  }
+
+  // Takımyıldızlar: ekranda bir takımyıldız çizimi (yıldızlar renkli). Altında 4 Yunan harfli düğme.
+  // Adım 1: çizim → takımyıldızın adı. Adım 2: ad + yıldız rengi → sayı. Adım 3: sayı → Yunan harfi.
+  const YILDIZ_AD = ['Kepçe', 'Akrep', 'Yay', 'Balina', 'Kuğu', 'Ejder', 'Terazi', 'Tilki'];
+  const YILDIZ_RENK = ['sari', 'beyaz', 'mavi', 'kirmizi'];
+  const YUNAN = ['Γ', 'Δ', 'Θ', 'Λ', 'Ξ', 'Π', 'Σ', 'Φ', 'Ψ', 'Ω'];
+  function takimUret(rnd) {
+    const yild = [];
+    while (yild.length < 5) {
+      const p = [0.1 + rnd() * 0.8, 0.1 + rnd() * 0.8];
+      if (yild.every(q => Math.hypot(p[0] - q[0], p[1] - q[1]) > 0.24)) yild.push(p);
+    }
+    const cizgi = [[0, 1], [1, 2], [2, 3], [3, 4]];
+    if (rnd() < 0.5) cizgi.push([4, Math.floor(rnd() * 3)]);
+    return { yild, cizgi, buyuk: Math.floor(rnd() * 5) };
+  }
+  function yildizYap(rnd) {
+    const desenler = YILDIZ_AD.map(() => takimUret(rnd));
+    const sayiTablo = Object.fromEntries(YILDIZ_AD.map(a => [a, Object.fromEntries(YILDIZ_RENK.map(r => [r, 1 + Math.floor(rnd() * 9)]))]));
+    const harfler = karistir(rnd, YUNAN);
+    const harfTablo = Object.fromEntries(aralik(1, 9).map((n, i) => [n, harfler[i]]));
+    const no = Math.floor(rnd() * YILDIZ_AD.length), renk = sec(rnd, YILDIZ_RENK);
+    const dogru = harfTablo[sayiTablo[YILDIZ_AD[no]][renk]];
+    const dugmeler = karistir(rnd, [dogru, ...karistir(rnd, YUNAN.filter(h => h !== dogru)).slice(0, 3)]);
+    return { tur: 'yildiz', gorunum: { desen: desenler[no], renk, dugmeler }, tablolar: [desenler, sayiTablo, harfTablo], cevap: dugmeler.indexOf(dogru) };
+  }
+
+  // Çalar saat: akrep ve yelkovan bir saati gösterir. ÇAL düğmesine doğru anda basılmalı.
+  // Adım 1: akrebin gösterdiği saat → renk. Adım 2: renk + yelkovanın çeyreği → harf. Adım 3: harf → saniye toplamı.
+  const SAAT_HARF = ['A', 'B', 'C', 'D', 'E', 'F'];
+  const CEYREK_AD = ['00-14. dakika', '15-29. dakika', '30-44. dakika', '45-59. dakika'];
+  function saatYap(rnd) {
+    const renkTablo = Object.fromEntries(aralik(1, 12).map(h => [h, sec(rnd, KABLO_RENK)]));
+    const harfTablo = Object.fromEntries(KABLO_RENK.map(r => [r, [0, 1, 2, 3].map(() => sec(rnd, SAAT_HARF))]));
+    const toplamTablo = Object.fromEntries(SAAT_HARF.map(h => [h, 1 + Math.floor(rnd() * 12)]));
+    const akrep = 1 + Math.floor(rnd() * 12), dakika = Math.floor(rnd() * 12) * 5;
+    const cevap = toplamTablo[harfTablo[renkTablo[akrep]][Math.floor(dakika / 15)]];
+    return { tur: 'saat', gorunum: { akrep, dakika }, tablolar: [renkTablo, harfTablo, toplamTablo], cevap };
+  }
+
+  // Piyano: 5 renkli tuş, üstte nota kağıdında bir işaret. 4 notalık melodi çalınacak.
+  // Adım 1: işaret → şarkı. Adım 2: şarkı → notalar. Adım 3: nota → tuş rengi.
+  const NOTALAR = ['Do', 'Re', 'Mi', 'Fa', 'Sol'];
+  const NOTA_ISARET = ['♩', '♪', '♫', '♬', '♭', '♯'];
+  const SARKI = ['Ninni', 'Marş', 'Vals', 'Tango', 'Polka', 'Zeybek'];
+  const PIYANO_RENK = ['kirmizi', 'mavi', 'sari', 'yesil', 'beyaz'];
+  function piyanoYap(rnd) {
+    const s = karistir(rnd, SARKI);
+    const sarkiTablo = Object.fromEntries(NOTA_ISARET.map((n, i) => [n, s[i]]));
+    const melodiTablo = Object.fromEntries(SARKI.map(a => [a, Array.from({ length: 4 }, () => sec(rnd, NOTALAR))]));
+    const r = karistir(rnd, PIYANO_RENK);
+    const renkTablo = Object.fromEntries(NOTALAR.map((n, i) => [n, r[i]]));
+    const isaret = sec(rnd, NOTA_ISARET);
+    const tuslar = karistir(rnd, PIYANO_RENK);
+    const cevap = melodiTablo[sarkiTablo[isaret]].map(n => tuslar.indexOf(renkTablo[n]));
+    return { tur: 'piyano', gorunum: { isaret, tuslar }, tablolar: [sarkiTablo, melodiTablo, renkTablo], cevap };
+  }
+
+  // Zarlar: 3 renkli zar, altında kafa karıştırıcı kelimeli 4 düğme.
+  // Adım 1: zarların toplamı → bakılacak zarın rengi. Adım 2: renk + o zarın sayısı → kelime. Adım 3: kelime → basılacak düğmenin yazısı.
+  const ZAR_RENK = ['kirmizi', 'mavi', 'yesil', 'beyaz'];
+  const ZAR_ARALIK = [[3, 6], [7, 9], [10, 11], [12, 14], [15, 18]];
+  const ZAR_KELIME = ['TEK', 'ÇİFT', 'AT', 'ATMA', 'YÜKSEK', 'ALÇAK'];
+  function zarYap(rnd) {
+    const renkTablo = ZAR_ARALIK.map(() => sec(rnd, ZAR_RENK));
+    const kelimeTablo = Object.fromEntries(ZAR_RENK.map(r => [r, Object.fromEntries(aralik(1, 6).map(v => [v, sec(rnd, ZAR_KELIME)]))]));
+    const hedefTablo = Object.fromEntries(ZAR_KELIME.map(w => [w, sec(rnd, ZAR_KELIME)]));
+    for (;;) {
+      const renkler = karistir(rnd, ZAR_RENK).slice(0, 3), degerler = renkler.map(() => 1 + Math.floor(rnd() * 6));
+      const top = degerler.reduce((a, b) => a + b, 0);
+      const hr = renkTablo[ZAR_ARALIK.findIndex(([a, z]) => top >= a && top <= z)];
+      const k = renkler.indexOf(hr);
+      if (k < 0) continue;
+      const hedef = hedefTablo[kelimeTablo[hr][degerler[k]]];
+      const dugmeler = karistir(rnd, [hedef, ...karistir(rnd, ZAR_KELIME.filter(w => w !== hedef)).slice(0, 3)]);
+      return { tur: 'zar', gorunum: { renkler, degerler, dugmeler }, tablolar: [renkTablo, kelimeTablo, hedefTablo], cevap: dugmeler.indexOf(hedef) };
+    }
+  }
+
+  // Işık dizisi: 4 renkli ped sırayla yanar (4 ışık), durur, tekrar eder. Köşede etiket numarası.
+  // Adım 1: etiket → tablo. Adım 2: tablo + yanan renk → basılacak renk. Adım 3: ilk yanan renk → düz mü ters mi.
+  const ISIK_RENK = ['kirmizi', 'mavi', 'yesil', 'sari'];
+  const ISIK_TABLO_AD = ['X', 'Y', 'Z'];
+  function isikYap(rnd) {
+    const tabloSec = Object.fromEntries([1, 2, 3, 4].map(n => [n, sec(rnd, ISIK_TABLO_AD)]));
+    const cevirTablo = Object.fromEntries(ISIK_TABLO_AD.map(t => { const p = karistir(rnd, ISIK_RENK); return [t, Object.fromEntries(ISIK_RENK.map((r, i) => [r, p[i]]))]; }));
+    const yonTablo = Object.fromEntries(ISIK_RENK.map(r => [r, rnd() < 0.5 ? 'duz' : 'ters']));
+    if (new Set(Object.values(yonTablo)).size === 1) yonTablo[ISIK_RENK[0]] = yonTablo[ISIK_RENK[0]] === 'duz' ? 'ters' : 'duz';
+    const etiket = 1 + Math.floor(rnd() * 4);
+    let dizi;
+    do { dizi = Array.from({ length: 4 }, () => sec(rnd, ISIK_RENK)); } while (dizi.some((r, i) => i && dizi[i - 1] === r));
+    const yerler = karistir(rnd, ISIK_RENK);   // pedlerin renkleri: sol üst, sağ üst, sol alt, sağ alt
+    let basilacak = dizi.map(r => cevirTablo[tabloSec[etiket]][r]);
+    if (yonTablo[dizi[0]] === 'ters') basilacak = basilacak.reverse();
+    return { tur: 'isik', gorunum: { etiket, dizi, yerler }, tablolar: [tabloSec, cevirTablo, yonTablo], cevap: basilacak.map(r => yerler.indexOf(r)) };
+  }
+
+  // Şifreli mesaj: ekranda harfleri kaydırılmış bir kelime (yazı renkli), altında 4 renkli düğme.
+  // Adım 1: yazının rengi → kaydırma sayısı. Adım 2: kelimeyi çöz → sayı. Adım 3: sayı → düğme rengi.
+  const SIFRE_RENK = ['kirmizi', 'mavi', 'yesil', 'sari'];
+  function sifreYap(rnd) {
+    const kaydirTablo = Object.fromEntries(SIFRE_RENK.map(r => [r, 1 + Math.floor(rnd() * 6)]));
+    const kelimeler = karistir(rnd, KELIMELER.filter(w => [...w].every(h => ALFABE.includes(h)))).slice(0, 10);
+    const sayiTablo = Object.fromEntries(kelimeler.map(w => [w, 1 + Math.floor(rnd() * 9)]));
+    const renkTablo = Object.fromEntries(aralik(1, 9).map(n => [n, sec(rnd, KABLO_RENK)]));
+    const renk = sec(rnd, SIFRE_RENK), kelime = sec(rnd, kelimeler), k = kaydirTablo[renk];
+    const sifreli = [...kelime].map(h => ALFABE[(ALFABE.indexOf(h) + k) % ALFABE.length]).join('');
+    const hedef = renkTablo[sayiTablo[kelime]];
+    const dugmeler = karistir(rnd, [hedef, ...karistir(rnd, KABLO_RENK.filter(r => r !== hedef)).slice(0, 3)]);
+    return { tur: 'sifre', gorunum: { sifreli, renk, dugmeler }, tablolar: [kaydirTablo, sayiTablo, renkTablo], cevap: dugmeler.indexOf(hedef), ara: { kelime } };
+  }
+
+  const URETICI = { kablo: kabloYap, dugme: dugmeYap, tus: tusYap, cark: carkYap, labirent: labirentYap, kelime: kelimeYap, demet: demetYap, salter: salterYap, kadran: kadranYap, fener: fenerYap,
+    numara: numaraYap, sigorta: sigortaYap, telsiz: telsizYap, vana: vanaYap, yildiz: yildizYap, saat: saatYap, piyano: piyanoYap, zar: zarYap, isik: isikYap, sifre: sifreYap };
 
   // ---------- Dağıtım: hangi adım hangi yönlendiricide ----------
   // G yönlendirici (zincirde 1..G). G=1: hepsi onda. G=2: her bölüm iki kişiye bölünür. G=3: her adım ayrı kişide.
@@ -285,9 +502,8 @@ const Motor = (() => {
     const rnd = tohumlu(tohum);
     // Bölüm sayısı açılışta seçilir (2-12). Bombanın üst yüzünde 6, alt yüzünde 6 yuva var.
     const bolumSayisi = Math.max(2, Math.min(12, ayar.bolum | 0 || 6));
-    // Türler: önce hepsinden birer tane (karışık), sonra tekrar
-    const turlar = [];
-    while (turlar.length < bolumSayisi) turlar.push(...karistir(rnd, TURLER));
+    // Türler: 20 türün içinden rastgele, hiçbiri tekrar etmez
+    const turlar = karistir(rnd, TURLER);
     const bolumler = turlar.slice(0, bolumSayisi).map((tur, i) => { const b = URETICI[tur](rnd); return { no: i + 1, ...b, cozuldu: false, ilerleme: b.tur === 'labirent' ? [...b.ilk] : [] }; });
     const G = Math.max(1, oyuncuSayisi - 1);
     const seri = `${sec(rnd, 'KLMNRSTZ'.split(''))}${1 + Math.floor(rnd() * 9)}${sec(rnd, 'ABDEHPY'.split(''))}-${10 + Math.floor(rnd() * 90)}`;
@@ -381,6 +597,25 @@ const Motor = (() => {
     } else if (b.tur === 'kelime' && e.ad === 'tus') {
       if (!(e.tus >= 0 && e.tus < 4)) return { tip: 'yok' };
       dogru = e.tus === b.cevap;
+    } else if (['sigorta', 'telsiz', 'yildiz', 'zar', 'sifre'].includes(b.tur) && e.ad === 'tus') {
+      if (!(e.tus >= 0 && e.tus < (b.tur === 'sigorta' ? 6 : 4))) return { tip: 'yok' };
+      dogru = e.tus === b.cevap;
+    } else if ((b.tur === 'piyano' || b.tur === 'isik') && e.ad === 'tus') {
+      if (!(e.tus >= 0 && e.tus < (b.tur === 'piyano' ? 5 : 4))) return { tip: 'yok' };
+      if (e.tus === b.cevap[b.ilerleme.length]) {
+        b.ilerleme.push(e.tus);
+        if (b.ilerleme.length < b.cevap.length) return { tip: 'ilerle', bolum: e.bolum, ilerleme: [...b.ilerleme] };
+        dogru = true;
+      } else dogru = false;
+    } else if (b.tur === 'numara' && e.ad === 'gir') {
+      dogru = String(e.deger) === b.cevap;
+    } else if (b.tur === 'vana' && e.ad === 'bosalt') {
+      const t = Array.isArray(e.turlar) ? e.turlar.map(x => x | 0) : [];
+      dogru = t.join() === b.cevap.join();
+    } else if (b.tur === 'saat' && e.ad === 'cal') {
+      const saat = String(e.saat || '');
+      const ss = saat.slice(-2);
+      dogru = Math.abs(sayacSn(saat) - kalanSn) <= 2.5 && (+ss[0] + +ss[1]) === b.cevap;
     } else if (b.tur === 'demet' && e.ad === 'kes') {
       if (b.ilerleme.includes(e.kablo) || !(e.kablo >= 0 && e.kablo < b.gorunum.kablolar.length)) return { tip: 'yok' };
       b.ilerleme.push(e.kablo);
@@ -397,7 +632,7 @@ const Motor = (() => {
       return { tip: 'dogru', bolum: e.bolum, bitti: d.bitti, sonuc: d.sonuc, ilerleme: [...b.ilerleme] };
     }
     d.hatalar++;
-    if (b.tur === 'tus') b.ilerleme = [];   // yanlış tuş: baştan
+    if (b.tur === 'tus' || b.tur === 'piyano' || b.tur === 'isik') b.ilerleme = [];   // yanlış tuş: baştan
     if (d.hatalar > d.ayar.hata) { d.bitti = true; d.sonuc = 'patladi'; }
     return { tip: 'hata', bolum: e.bolum, hatalar: d.hatalar, bitti: d.bitti, sonuc: d.sonuc, ilerleme: [...b.ilerleme] };
   }
@@ -413,6 +648,9 @@ const Motor = (() => {
 
   return {
     PANEL_HARF, SALTER_DONUSUM, KADRAN_KELIME, KADRAN_CERCEVE, KADRAN_HARF, FENER_CAM,
+    NUM_KELIME, NUM_SUTUN, NUM_PANEL, NUM_ISLEM, SIGORTA_KUTU, SIGORTA_ARALIK, SIGORTA_HARF, SIGORTA_KURAL, TELSIZ_DESEN, TELSIZ_KELIME,
+    VANA_RENK, VANA_ARALIK, VANA_ETIKET, YILDIZ_AD, YILDIZ_RENK, YUNAN, SAAT_HARF, CEYREK_AD, NOTALAR, NOTA_ISARET, SARKI, PIYANO_RENK,
+    ZAR_RENK, ZAR_ARALIK, ZAR_KELIME, ISIK_RENK, ISIK_TABLO_AD, SIFRE_RENK, ALFABE,
     LAB_N, SUTUN_AD, KELIME_RENK, RENK_KELIME, KARISIK, KONUM, gecilir,
     RENKLER, KABLO_RENK, SEKILLER, HARFLER, DUGME_RENK, DUGME_YAZI, SERIT_RENK, ISARETLER, TUS_ISIK, SIRALAMA, CARK_LAMBA, TURLER, TUR_AD, TUR_IKON,
     tohumlu, yeni, sayfalar, hamle, sureBitti, sayacYazi, sayacSn,
