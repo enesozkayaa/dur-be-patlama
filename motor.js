@@ -484,12 +484,12 @@ const Motor = (() => {
     numara: numaraYap, sigorta: sigortaYap, telsiz: telsizYap, vana: vanaYap, yildiz: yildizYap, saat: saatYap, piyano: piyanoYap, zar: zarYap, isik: isikYap, sifre: sifreYap };
 
   // ---------- Dağıtım: hangi adım hangi yönlendiricide ----------
-  // G yönlendirici (zincirde 1..G). G=1: hepsi onda. G=2: her bölüm iki kişiye bölünür. G=3: her adım ayrı kişide.
+  // G yönlendirici (zincirde 1..G). G=1: hepsi onda. G=2: 1. ve 3. adım bir kişide, 2. adım öbüründe (peş peşe adımlar aynı kişide olmaz). G=3: her adım ayrı kişide.
   function dagit(rnd, bolumSayisi, G) {
     const d = [];
     for (let b = 0; b < bolumSayisi; b++) {
       if (G <= 1) d.push([0, 0, 0]);
-      else if (G === 2) { const a = rnd() < 0.5 ? 0 : 1; const tek = Math.floor(rnd() * 3); d.push([0, 1, 2].map(i => (i === tek ? 1 - a : a))); }
+      else if (G === 2) { const a = rnd() < 0.5 ? 0 : 1; d.push([a, 1 - a, a]); }   // atlayarak: 1. ve 3. adım bir kişide, 2. adım öbüründe
       else d.push(karistir(rnd, [0, 1, 2]));
     }
     // Herkesin elinde yeterli sayfa olsun (G=3'te zaten öyle)
