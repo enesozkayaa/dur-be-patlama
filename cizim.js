@@ -51,7 +51,7 @@ const Cizim = (() => {
     const N = 6, H = 34, KX = 26, KY = 24;
     const satir = y1 - y0 + 1;
     const c = document.createElement('canvas');
-    c.width = KX + N * H + 8; c.height = KY + satir * H + 8;
+    c.width = KX + N * H + 8; c.height = KY + satir * H + 14;
     const g = c.getContext('2d');
     g.fillStyle = '#f3ead2'; g.fillRect(0, 0, c.width, c.height);
     g.font = '900 16px Nunito, sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillStyle = '#6a1a0a';
@@ -65,7 +65,14 @@ const Cizim = (() => {
       g.strokeStyle = '#1f9c45'; g.lineWidth = 3.5; g.beginPath(); g.arc(KX + x * H + H / 2, KY + (y - y0) * H + H / 2, 11, 0, Math.PI * 2); g.stroke();
     });
     g.strokeStyle = '#2a2118'; g.lineWidth = 3.5; g.lineCap = 'round';
-    g.strokeRect(KX, KY, N * H, satir * H);
+    // Dış çerçeve: yarım haritada kesilen kenar duvar DEĞİL → orası ince kesikli çizilir
+    const ustKesik = !sadeceIsaret && y0 > 0, altKesik = !sadeceIsaret && y1 < N - 1;
+    const sol = KX, sag = KX + N * H, ust = KY, alt = KY + satir * H;
+    g.beginPath();
+    g.moveTo(sol, ust); g.lineTo(sol, alt); g.moveTo(sag, ust); g.lineTo(sag, alt);
+    if (!ustKesik) { g.moveTo(sol, ust); g.lineTo(sag, ust); }
+    if (!altKesik) { g.moveTo(sol, alt); g.lineTo(sag, alt); }
+    g.stroke();
     if (!sadeceIsaret) {
       g.beginPath();
       for (let y = y0; y <= y1; y++) for (let x = 0; x < N; x++) {
@@ -73,7 +80,21 @@ const Cizim = (() => {
         if (x < N - 1 && lab.sag[y][x]) { g.moveTo(px + H, py); g.lineTo(px + H, py + H); }
         if (y < N - 1 && lab.alt[y][x]) { g.moveTo(px, py + H); g.lineTo(px + H, py + H); }
       }
+      // alt yarının üst kenarı: 3. ile 4. satır arasındaki gerçek duvarlar
+      if (ustKesik) for (let x = 0; x < N; x++) if (lab.alt[y0 - 1][x]) { g.moveTo(KX + x * H, ust); g.lineTo(KX + x * H + H, ust); }
       g.stroke();
+      // kesik kenar: ince kesikli çizgi + duvar olmayan yerlerde geçiş oku
+      const kesik = (ky, yAlt, ok) => {
+        g.save(); g.strokeStyle = 'rgba(42,33,24,0.35)'; g.lineWidth = 1.5; g.setLineDash([4, 4]);
+        g.beginPath(); g.moveTo(sol, ky); g.lineTo(sag, ky); g.stroke(); g.restore();
+        g.fillStyle = '#1f9c45';
+        for (let x = 0; x < N; x++) if (!lab.alt[yAlt][x]) {
+          const cx = KX + x * H + H / 2;
+          g.beginPath(); g.moveTo(cx - 6, ky - ok * 1); g.lineTo(cx + 6, ky - ok * 1); g.lineTo(cx, ky + ok * 7); g.closePath(); g.fill();
+        }
+      };
+      if (altKesik) kesik(alt, y1, 1);       // aşağı geçiş (4. satıra)
+      if (ustKesik) kesik(ust, y0 - 1, -1);  // yukarı geçiş (3. satıra)
     }
     return c.toDataURL();
   }

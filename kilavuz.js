@@ -89,7 +89,7 @@ const Kilavuz = (() => {
         ic = `<p>Labirent haritalarının <b>${ust ? 'ÜST yarısı (1-3. satırlar)' : 'ALT yarısı (4-6. satırlar)'}</b>. Diğer yarısı <b>${ust ? '3' : '2'}. adımda</b> (belki başkasının çantasında)!
           Bombacının yerini (beyaz nokta) ve hedefi (kırmızı üçgen) öğren, onu <b>duvarlara çarptırmadan</b> yönlendir: yukarı, aşağı, sola, sağa.</p>
           <div class="liste genis">${t2.map((h, i) => `<div><b>${i + 1}. labirent</b><img style="width:100%" src="${Cizim.labirentResim(h, ust ? 0 : 3, ust ? 2 : 5, h.isaret)}" alt=""></div>`).join('')}</div>
-          <p class="not">Kalın çizgiler duvardır. Duvara çarpmak <b>hata</b> sayılır.</p>`;
+          <p class="not">Kalın çizgiler duvardır. Duvara çarpmak <b>hata</b> sayılır. Kesikli çizgi haritanın kesildiği yerdir (duvar değil); <b style="color:#1f9c45">yeşil oklar</b> ${ust ? '3. satırdan 4. satıra inilebilecek' : '4. satırdan 3. satıra çıkılabilecek'} yerleri gösterir.</p>`;
       }
     } else if (b.tur === 'kelime') {
       if (adim === 0) {
