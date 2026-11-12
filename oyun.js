@@ -190,7 +190,7 @@
       duyuru('💣 Bombacısın! Bir bölüme dokun, yakından bak. Ne gördüğünü yanındakine anlat.', '', 5000);
     } else {
       const c = d.cantalar[benimSira];
-      Sahne.cantaKur({ sol: c.sol, sag: c.sag, seriYer: c.seriYer, sira: benimSira + 1 }, { olay: () => {}, saatYazi });
+      Sahne.cantaKur({ sol: c.sol, sag: c.sag, seriYer: c.seriYer, seriHane: c.seriHane, sira: benimSira + 1 }, { olay: () => {}, saatYazi });
       kilitKur();
       duyuru('🧳 Çantan kilitli! Çantayı sürükleyip çevir, kodu bul. Bir rakamı bombada!', '', 5500);
     }

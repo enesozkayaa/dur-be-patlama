@@ -874,7 +874,7 @@ const Sahne = (() => {
         g.fillStyle = '#e9dcbc'; g.fillRect(w * 0.06, h * 0.2, w * 0.88, h * 0.6);
         yazi(g, `KOD · ${bilgi.seriYer + 1}. RAKAM`, w / 2, h * 0.32, 40, '#5a2a10', 'Nunito', 900);
         yazi(g, 'Bombanın SERİ NO', w / 2, h * 0.5, 44, '#1a0f08', 'Special Elite', 400);
-        yazi(g, 'son rakamı', w / 2, h * 0.64, 44, '#1a0f08', 'Special Elite', 400);
+        yazi(g, `${['İLK', '2.', '3.', 'SON'][bilgi.seriHane ?? 3]} rakamı`, w / 2, h * 0.64, 44, '#1a0f08', 'Special Elite', 400);
       }, '#4a2a16'), roughness: 0.8 }),
       new THREE.MeshStandardMaterial({ map: deri(), roughness: 0.75 }),
       new THREE.MeshStandardMaterial({ map: yuzDoku((g, w, h) => {

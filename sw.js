@@ -3,7 +3,7 @@
 // Oyunu güncelleyip yüklerken ONBELLEK numarasını 1 artır.
 // =============================================================
 
-const ONBELLEK = 'dur-be-patlama-v6';
+const ONBELLEK = 'dur-be-patlama-v7';
 const DOSYALAR = [
   './', 'index.html', 'style.css', 'motor.js', 'ses.js', 'cizim.js', 'sahne.js', 'kilavuz.js', 'ag.js', 'oyun.js',
   'manifest.webmanifest', 'ikonlar/ikon-192.png', 'ikonlar/ikon-512.png',
